@@ -16,14 +16,14 @@ import telnetlib,datetime,os,subprocess
 
 
 ## Variables
-Log = "/root/backup.Log"
-tftpServer = "10.1.1.5"
+Log = "/var/log/cmtsBackup.Log"
+tftpServer = "10.1.1.6"
 now = datetime.date.today()
 currDate = str(now)
 currDate = currDate.replace('-', '')  ## Result is yymmdd
 #print "Date is " + str(currDate)
 cmtsList = "/root/cmtsName.txt"
-tftpboot = "/var/lib/tftpboot/"
+tftpboot = "/pnetBackup/tftpboot/CMTSs/today/"
 
 #=============================================================================================================================#
 
