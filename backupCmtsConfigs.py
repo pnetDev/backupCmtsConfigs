@@ -17,14 +17,14 @@ import telnetlib,datetime,os,subprocess
 
 ## Variables
 Log = "/var/log/cmtsBackup.Log"
-tftpServer = "10.1.1.6"
+tftpServer = "10.1.1.5"
 now = datetime.date.today()
 currDate = str(now)
 currDate = currDate.replace('-', '')  ## Result is yymmdd
 #print "Date is " + str(currDate)
 cmtsList = "/root/cmtsName.txt"
 tftpboot = "/pnetBackup/tftpboot/CMTSs/today/"
-
+path = "CMTSs/today"
 #=============================================================================================================================#
 
 ## Functions
@@ -102,7 +102,7 @@ for cmts in open(cmtsList,'r'):
 	logString = "Processing ", cmtsName, cmtsType
 	logWrite(logString)
 	## Create the empty file the startup-config will be saved to
-	saveName = cmtsName  + ".cfg" + currDate			## EG. labrouter.cfg20180509
+	saveName = path + "/" + cmtsName  + ".cfg" + currDate			## EG. labrouter.cfg20180509
 	configName = tftpboot + cmtsName + ".cfg" + currDate		## EG. /var/lib/tftpboot/labrouter.cfg20180509
 	# print "ConfigName", configName
 	configFile = open(configName,'w')				## EG. labrouter.cfg20180509
