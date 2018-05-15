@@ -68,7 +68,7 @@ def saveConfig(cmtsName,cmtsType,saveName):
 		return				# Exit the function and return to main
 	
 	tn.write("\r\n\r\n")
-	logString = HOST, "Saving config."
+	logString = HOST, "Connect successful. Saving config."
 	logWrite(logString)
 	for cmd in commands:
 		tn.write(cmd+"\r\n")
