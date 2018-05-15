@@ -14,5 +14,5 @@ https://docs.google.com/document/d/18qzqfG9P1Xvcekl66uED4XuH9c6iUKmU3s9CoOxRRrg
 4.  Change the variable tftpboot in the Python script to refer to the path where your config files are to be saved to.
     vim /opt/backupCmtsConfigs/backupCmtsConfigs.py
 
-5.  Run the script and events will be logged to /var/log/backup.Log
+5.  Run the script backupCmtsConfigs.py and events will be logged to /var/log/backup.Log
     /opt/backupScripts/backupCmtsConfigs.py
