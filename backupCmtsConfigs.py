@@ -13,16 +13,18 @@
 
 ## Required modules
 import telnetlib,datetime,os,subprocess
-
+from time import gmtime, strftime
 
 ## Variables
 Log = "/var/log/cmtsBackup.Log"
-tftpServer = "10.1.1.5"
-now = datetime.date.today()
+tftpServer = "10.1.1.6"
+## New code to show date as YYMMDDHH
+now = strftime("%y%m%d%H")		# New code to show date as YYMMDDHH
+#now = datetime.date.today()
 currDate = str(now)
-currDate = currDate.replace('-', '')  ## Result is yymmdd
+#currDate = currDate.replace('-', '')  ## Result is yymmdd
 #print "Date is " + str(currDate)
-cmtsList = "/root/cmtsName.txt"
+cmtsList = "/opt/backupCmtsConfigs/cmtsName.txt"
 tftpboot = "/pnetBackup/tftpboot/CMTSs/today/"
 path = "CMTSs/today"
 #=============================================================================================================================#
@@ -49,9 +51,11 @@ def saveConfig(cmtsName,cmtsType,saveName):
 		 commands = ["hsds","hsds","en","hsds",saveCommand,"",""]
 	if cmtsType == 'bsr':
 		commands =  ["hsds","en","hsds",saveCommand,"",""]
-	if cmtsType == 'casa':
-		saveCommand = "copy nvram startup-config tftp " + tftpServer + saveName
-		commands = ["root","casa","en","casa",saveCommand,""]
+	#if cmtsType == 'casa':
+		#backupCasaConfig()
+		#saveCommand = "copy nvram startup-config tftp " + " " + tftpServer + " " + saveName
+		#commands = ["root","casa","en","casa",saveCommand,""]
+		#commands = ["root","casa","en","casa"]
 	if cmtsType == 'ubr':
         	commands = ["1234","en","1234",saveCommand,"",""]
 
@@ -75,6 +79,27 @@ def saveConfig(cmtsName,cmtsType,saveName):
 	print tn.read_until("#\r\n",3)
 	tn.close()
 	
+def saveConfigCasa(cmtsName,cmtsType,saveName):
+	host = cmtsName
+	username = "root"
+	password = "casa"
+	saveCommand = "copy nvram startup-config tftp " + " " + tftpServer + " " + saveName
+	print saveCommand
+	tn = telnetlib.Telnet(host)
+	tn.read_until("login:")
+	tn.write(username+"\n")
+	tn.read_until("Password:")
+	tn.write(password+"\n")
+	tn.read_until(">")
+	tn.write("en"+"\n")
+	tn.read_until("Password:")
+	tn.write(password+"\n")
+	tn.read_until("#")
+	tn.write(saveCommand +"\n")
+	tn.write("exit"+"\n")
+	print tn.read_until("#\r\n",3)
+	tn.close()
+	
 
 def verifySaved(configName):
 	## Verify has the config been saved
@@ -87,7 +112,7 @@ def verifySaved(configName):
 		logString =  configName, "BACKUP: FAILED - file is empty"
 		logWrite(logString)
 		### SEND A TRAP
-		subprocess.call(['bash','/root/backupTrap.sh',configName])
+		subprocess.call(['bash','/opt/backupCmtsConfigs/backupTrap.sh',configName])
 
 #=================================================================================================================================================#
 
@@ -112,9 +137,17 @@ for cmts in open(cmtsList,'r'):
 	## Calling saveConfig function
 	logString = "Connecting to ", cmtsName
 	logWrite(logString)
-	saveConfig(cmtsName,cmtsType,saveName)				## Call function saveConfig and pass variables cmtsName,cmtsType,saveName
+	## The casa needs different syntax so we need to check here if the type is casa
+	if cmtsType == "casa":
+		print "Casa detected calling saveConfigCasa"
+		saveConfigCasa(cmtsName,cmtsType,saveName)
+	if cmtsType <> "casa":
+		saveConfig(cmtsName,cmtsType,saveName)				## Call function saveConfig and pass variables cmtsName,cmtsType,saveName
 	logString = "Verifying ",configName
 	logWrite(logString)
 	verifySaved(configName)						## Check that the saved file isn't empty
-  		
+  	
+## This code is to scp the saved configs to 10.1.1.223
+subprocess.call(['bash','/opt/backupCmtsConfigs/syncConfigWith223.sh',currDate])
+	
 logWrite("END CMTS Backup Process")
